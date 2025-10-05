@@ -165,7 +165,7 @@ def print_sample_examples(dataset: List[dict], num_examples: int = 5):
 if __name__ == '__main__':
     # Configure the data generation
     config = SimpleDataGenConfig(
-        n_samples=3000,         # Generate 3000 samples
+        n_samples=50_000,       # Generate 50k samples
         min_list_size=7,        # Lists will have 7-12 words
         max_list_size=12,
         min_correct=2,          # 2-5 words will be correct
