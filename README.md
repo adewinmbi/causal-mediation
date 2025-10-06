@@ -35,6 +35,8 @@ Performace measured by model and by dataset difficulty using 5000 samples per di
 | openai/gpt-oss-20b                   | nan    |      nan    |
 | deepseek-ai/deepseek-llm-7b-chat     | nan    |      nan    |
 
+Samples are categorized as either trivial, easy, medium, or hard. Harder samples have a higher frequency of potentially multisemantic words, for example, "orange" can be categorized as a fruit OR a color. This distinction was made to eventually uncover the causality behind whether a sequence was miscounted due to a misunderstanding of the word, or due to a lack of counting circuitry. I got the idea after seeing Claude Sonnet 4.5 fail to count what I thought was a simple sequence. 
+
 | Dataset      |   MAE |   Error STD |
 |:-------------|------:|------------:|
 | data_trivial |  1.46 |        1.52 |
