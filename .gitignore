@@ -1,5 +1,7 @@
 # Ignore generated data for now
 *.json
+*.csv
+*.out
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

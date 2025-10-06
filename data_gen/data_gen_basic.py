@@ -1,6 +1,6 @@
 import random
 from dataclasses import dataclass
-from typing import List, Tuple
+from typing import List, Tuple, Literal
 import json
 
 @dataclass
@@ -10,6 +10,7 @@ class SimpleDataGenConfig:
     max_list_size: int = 12         # Maximum words in the list
     min_correct: int = 2            # Minimum correct words in the list
     max_correct: int = 5            # Maximum correct words in the list
+    difficulty: Literal["trivial", "easy", "medium", "hard"] = "hard"
 
 # Curated dictionary of common categories with simple, everyday words
 CATEGORY_WORDS = {
@@ -86,25 +87,44 @@ def generate_sample(config: SimpleDataGenConfig) -> Tuple[str, List[str], List[s
     Returns:
         Tuple of (category, mixed_list, correct_words)
     """
+    
+    # Difficulty
+    chosen_categories = None
+    if config.difficulty == 'trivial':
+        chosen_categories = ['fruit', 'animal']
+        
+    elif config.difficulty == 'easy':
+        chosen_categories = ['fruit', 'animal', 'country', 'clothing', 'emotion']
+        
+    elif config.difficulty == 'medium':
+        chosen_categories = list(set(CATEGORY_WORDS.keys()) 
+                                 - {'profession', 'beverage', 'furniture', 'clothing', 
+                                    'building', 'tool', 'food'})
+    
+    elif config.difficulty == 'hard':
+        chosen_categories = list(CATEGORY_WORDS.keys())
+        
+    category_words = {cat: CATEGORY_WORDS[cat] for cat in chosen_categories}
+    
     # Choose a random category
-    category = random.choice(list(CATEGORY_WORDS.keys()))
+    category = random.choice(list(category_words.keys()))
     
     # Determine how many correct words to include
     num_correct = random.randint(config.min_correct, config.max_correct)
-    num_correct = min(num_correct, len(CATEGORY_WORDS[category]))
+    num_correct = min(num_correct, len(category_words[category]))
     
     # Sample correct words from the chosen category
-    correct_words = random.sample(CATEGORY_WORDS[category], num_correct)
+    correct_words = random.sample(category_words[category], num_correct)
     
     # Determine total list size
     total_size = random.randint(config.min_list_size, config.max_list_size)
     num_incorrect = max(0, total_size - num_correct)
     
     # Sample incorrect words from other categories
-    other_categories = [cat for cat in CATEGORY_WORDS.keys() if cat != category]
+    other_categories = [cat for cat in category_words.keys() if cat != category]
     other_words = []
     for other_cat in other_categories:
-        other_words.extend(CATEGORY_WORDS[other_cat])
+        other_words.extend(category_words[other_cat])
     
     incorrect_words = random.sample(other_words, min(num_incorrect, len(other_words)))
     
@@ -169,14 +189,12 @@ if __name__ == '__main__':
         min_list_size=7,        # Lists will have 7-12 words
         max_list_size=12,
         min_correct=2,          # 2-5 words will be correct
-        max_correct=5
+        max_correct=5,
+        difficulty="hard"
     )
     
-    # Generate the dataset
-    print(f"Generating {config.n_samples} training samples...")
-    dataset = generate_dataset(config)
-    print_sample_examples(dataset, num_examples=5)
-    
-    # Save
-    save_dataset_json(dataset, "data.json")
-    print(f"Dataset saved to 'data.json' (JSON format)")
+    # Generate
+    for difficulty in ['trivial', 'easy', 'medium', 'hard']:
+        config.difficulty = difficulty
+        dataset = generate_dataset(config)
+        save_dataset_json(dataset, f"data_gen/data_{difficulty}.json")
